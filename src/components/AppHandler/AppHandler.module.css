@@ -1,0 +1,7 @@
+.app {
+  background-color: gray;
+  width: 800px;
+  height: 400px;
+  resize: both;
+  overflow: auto;
+}

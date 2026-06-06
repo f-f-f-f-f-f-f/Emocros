@@ -2,7 +2,8 @@
   --z-wallpaper: 1;
   --z-desktop-items: 2;
 
-  /* Set it really high because there might be a lot of apps open, right now it can support 100,000 apps */
+  /* Set it really high because there might be a lot of apps open, right now it can support 100,000 apps, 
+     but there's a soft limit of 95,000 just in case. */
   --z-taskbar: calc((100 * 1000) + var(--z-desktop-items));
   --z-start-menu: var(--z-taskbar);
 
