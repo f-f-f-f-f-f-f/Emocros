@@ -1,0 +1,9 @@
+.taskbar {
+  z-index: var(--z-taskbar);
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 5%;
+  background-color: rgb(211, 205, 205);
+}

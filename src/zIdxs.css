@@ -1,0 +1,10 @@
+:root {
+  --z-wallpaper: 1;
+  --z-desktop-items: 2;
+
+  /* Set it really high because there might be a lot of apps open, right now it can support 100,000 apps */
+  --z-taskbar: calc((100 * 1000) + var(--z-desktop-items));
+  --z-start-menu: var(--z-taskbar);
+
+  --z-context-menu: calc(var(--z-taskbar) + 1);
+}
