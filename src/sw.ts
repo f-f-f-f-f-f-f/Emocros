@@ -27,7 +27,6 @@ async function handleVirtualReq(req: Request, pathname: string) {
     return handleVirtualStorage(req, aid, parts.at(-1) || "");
   }
 
-  // Route any non-storage path requests directly to your VFS tree assets
   return handleVirtualAssets(aid, path);
 }
 

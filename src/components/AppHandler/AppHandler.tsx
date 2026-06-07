@@ -1,18 +1,17 @@
 import { Node } from "@/hooks/useFilesystem";
 import { useDraggable } from "@neodrag/react";
 import { useEffect, useRef, useState } from "react";
+import styles from "./AppHandler.module.css";
 
 export interface Manifest {
   name: string;
   main: string;
   include?: string[];
   exclude?: string[];
-  permissions: Array<"dangerousFilesystem" | "fullSystemAccess" | "pageModals">;
 }
 
 export default function AppHandler({ folderNode }: { folderNode: Node }) {
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
-  const [sandboxFlags, setSandboxFlags] = useState<string>("");
   const [currZIndex, setCurrZIndex] = useState(3);
   const [instanceUuid] = useState(() => crypto.randomUUID());
 
@@ -41,42 +40,11 @@ export default function AppHandler({ folderNode }: { folderNode: Node }) {
       if (!manifest.main)
         return pushError(`Missing property 'main' from manifest.json`);
 
-      const sandbox = ["allow-scripts", "allow-forms", "allow-popups"];
-
-      if (manifest.permissions?.includes("dangerousFilesystem")) {
-        const allowed = confirm(
-          "This app has full privileges to your filesystem and can potentially cause extreme harm. Do you want to allow it?",
-        );
-        if (!allowed) return;
-      }
-
-      if (manifest.permissions?.includes("fullSystemAccess")) {
-        if (!window.flags?.enableFullSysAccess) {
-          return pushError(
-            "Launch blocked: fullSystemAccess requires enabling window.flags.enableFullSysAccess.",
-          );
-        }
-        const allowed = confirm(
-          "This app has extremely high permissions and effectively becomes part of Emocros. Do you want to allow it?",
-        );
-        if (!allowed) return;
-        sandbox.push("allow-same-origin");
-      }
-
-      if (manifest.permissions?.includes("pageModals")) {
-        const allowed = confirm(
-          "This app can cause intrusive and blocking dialogs. Do you want to allow it?",
-        );
-        if (!allowed) return;
-        sandbox.push("allow-modals");
-      }
-
       const appUuid = manifest.name;
       const cleanMain = manifest.main.startsWith("/")
         ? manifest.main.slice(1)
         : manifest.main;
 
-      setSandboxFlags(sandbox.join(" "));
       setIframeSrc(`/app-route/${appUuid}/${instanceUuid}/${cleanMain}`);
     } catch (e) {
       return pushError(`Invalid manifest.json: ${e}`);
@@ -94,13 +62,8 @@ export default function AppHandler({ folderNode }: { folderNode: Node }) {
   }
 
   return (
-    <div ref={draggableRef} className="w-full h-full bg-white">
-      <iframe
-        src={iframeSrc}
-        sandbox={sandboxFlags}
-        className="w-full h-full border-none m-0 p-0 block"
-        title={`app-instance-${instanceUuid}`}
-      />
+    <div ref={draggableRef} className={styles.app}>
+      <iframe src={iframeSrc} title={`app-instance-${instanceUuid}`} />
     </div>
   );
 }

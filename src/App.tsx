@@ -1,5 +1,3 @@
-import AppHandler from "@/components/AppHandler/AppHandler";
-import { findNodeByPath, fs } from "@/hooks/useFilesystem";
 import Desktop from "./components/Desktop/Desktop";
 import Taskbar from "./components/Taskbar/Taskbar";
 import "./index.css";
@@ -9,29 +7,31 @@ import "./zIdxs.css";
 function App() {
   window.flags = {};
 
-  navigator.serviceWorker.register(sw, { type: "module" });
+  navigator.serviceWorker.register(sw, { type: "module", scope: "/" });
+
+  const items = [
+    {
+      icon: "/icons/recycle-bin.png",
+      title: "Recycle Bin",
+      path: "",
+    },
+    {
+      icon: "/icons/computer.png",
+      title: "My PC",
+      path: "",
+    },
+    {
+      icon: "/icons/file.png",
+      title: "Horcrux",
+      app: "Horcrux",
+    },
+  ];
 
   return (
-    <div>
-      <AppHandler
-        folderNode={findNodeByPath(fs, "C:/User/Programs/Horcrux/")!}
-      ></AppHandler>
-      <Desktop
-        items={[
-          {
-            icon: "/icons/recycle-bin.png",
-            title: "Recycle Bin",
-            path: "",
-          },
-          {
-            icon: "/icons/computer.png",
-            title: "My PC",
-            path: "",
-          },
-        ]}
-      ></Desktop>
+    <>
+      <Desktop items={items}></Desktop>
       <Taskbar></Taskbar>
-    </div>
+    </>
   );
 }
 

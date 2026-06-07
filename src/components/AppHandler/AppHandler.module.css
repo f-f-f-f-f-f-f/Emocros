@@ -1,7 +1,18 @@
 .app {
   background-color: gray;
   width: 800px;
-  height: 400px;
+  height: 600px;
   resize: both;
   overflow: auto;
+  cursor: move;
+
+  position: absolute;
+  top: 100px;
+  left: 100px;
+}
+
+.app iframe:first-of-type {
+  width: 100%;
+  height: 100%;
+  padding: 30px;
 }

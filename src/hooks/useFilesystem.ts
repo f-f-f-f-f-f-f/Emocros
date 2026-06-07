@@ -1,3 +1,12 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { get, set, del } from "idb-keyval";
+
+export interface FilesystemState {
+  fileTree: Node;
+  createNode: (parent: Node, node: Node) => void;
+}
+
 export type NodeType = "dir" | "file" | "drive" | "root";
 
 export interface Node {
@@ -21,7 +30,7 @@ export interface Node {
   hidden?: boolean;
 }
 
-export const fs: Node = {
+const fs: Node = {
   // The root is the same as "This PC" on Windows and handles all the drives
   type: "root",
   name: "Computer",
@@ -96,6 +105,11 @@ export const fs: Node = {
   ],
 };
 
+// Save the initial FS
+(async () => {
+  await set("vfs", fs);
+})();
+
 /**
  * Traverses a nested Node tree segment by segment to resolve the target node.
  * Returns the Node if found, or null if any segment along the path does not exist.
@@ -117,3 +131,55 @@ export function findNodeByPath(rootNode: Node = fs, path: string) {
 
   return currentNode;
 }
+
+export const useFilesystem = create<FilesystemState>()(
+  persist(
+    (set) => ({
+      fileTree: fs,
+      createNode(parent: Node, node: Node) {
+        set((state) => {
+          const addNodeToTree = (curr: Node): Node => {
+            // If it's the parent add it to it
+            if (curr === parent) {
+              return {
+                ...curr,
+                children: [...(curr.children || []), node],
+              };
+            }
+
+            // Otherwise, go through its children
+            if (curr.children) {
+              return {
+                ...curr,
+                children: curr.children.map(addNodeToTree),
+              };
+            }
+
+            return curr;
+          };
+
+          return {
+            fileTree: addNodeToTree(state.fileTree),
+          };
+        });
+      },
+    }),
+    {
+      name: "vfs",
+      storage: {
+        async getItem(name) {
+          const val = await get(name);
+          return val;
+        },
+
+        async setItem(name, value) {
+          await set(name, value);
+        },
+
+        async removeItem(name) {
+          await del(name);
+        },
+      },
+    },
+  ),
+);
